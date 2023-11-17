@@ -1,0 +1,9 @@
+numpy
+scikit-learn 
+matplotlib 
+pandas
+torchinfo 
+tqdm
+pyyaml
+regex
+requests

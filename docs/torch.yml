@@ -1,0 +1,7 @@
+.torch-installation:
+  stage: build
+  script:
+    - Go to https://pytorch.org/
+    - Select Latest Pytorch Build (2.1.0)
+    - Run the command to obtain with cuda version (Depends on the computer).
+    - E.g: pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118

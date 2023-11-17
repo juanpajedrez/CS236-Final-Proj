@@ -1,3 +1,8 @@
+#Data files
+data
+cs236_project.pdf
+cs236_project.zip
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

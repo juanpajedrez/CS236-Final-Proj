@@ -1,0 +1,10 @@
+.python-env:
+  stage: build
+  script:
+    - python --version or py --version
+    - python -m venv venv py -m venv venv
+    - .\venv\Scripts\activate
+    - pip install -r .\requirements-dev.txt
+    - pip install -r .\requirements.txt
+    - pip list
+    - (optional): Upgrade pip by python.exe -m pip install --upgrade pip
