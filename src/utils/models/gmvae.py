@@ -164,14 +164,7 @@ class GMVAE(nn.Module):
         nelbo, kl, rec = self.negative_elbo_bound(x)
         loss = nelbo
 
-        summaries = dict((
-            ('train/loss', nelbo),
-            ('gen/elbo', -nelbo),
-            ('gen/kl_z', kl),
-            ('gen/rec', rec),
-        ))
-
-        return loss, summaries
+        return loss, kl, rec
 
     def sample_sigmoid(self, batch):
         z = self.sample_z(batch)

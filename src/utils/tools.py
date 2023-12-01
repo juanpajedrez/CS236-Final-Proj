@@ -15,6 +15,7 @@ import torch
 # import tensorflow as tf
 from torch.nn import functional as F
 from torchvision import datasets, transforms
+from utils.models.gmvae import GMVAE
 
 bce = torch.nn.BCEWithLogitsLoss(reduction='none')
 
@@ -189,9 +190,9 @@ def load_model_by_name(model, global_step, device=None):
     print("Loaded from {}".format(file_path))
 
 def evaluate_lower_bound(model, labeled_test_subset, run_iwae=True):
-    "We will come back to change to our model class"
-    #check_model = isinstance(model, VAE) or isinstance(model, GMVAE)
-    #assert check_model, "This function is only intended for VAE and GMVAE"
+    "We will come back to change to our model class GMVAE"
+    check_model = isinstance(model, GMVAE)
+    assert check_model, "This function is only intended for VAE and GMVAE"
 
     print('*' * 80)
     print("LOG-LIKELIHOOD LOWER BOUNDS ON TEST SUBSET")
@@ -223,30 +224,24 @@ def evaluate_lower_bound(model, labeled_test_subset, run_iwae=True):
             niwae, kl, rec = compute_metrics(fn, repeat)
             print("Negative IWAE-{}: {}".format(iw, niwae))
 
-def evaluate_classifier(model, test_set):
+def save_loss_kl_rec_across_training(model_name, global_step, loss_array, kl_array, rec_array, overwrite_existing=False):
     """
-    We will come back to change our model class
+    Additional function :) to save in .npy format inside the checkpoints folder for later to use
     """
-    #check_model = isinstance(model, SSVAE)
-    #assert check_model, "This function is only intended for SSVAE"
-
-    print('*' * 80)
-    print("CLASSIFICATION EVALUATION ON ENTIRE TEST SET")
-    print('*' * 80)
-
-    X, y = test_set
-    pred = model.cls(X)
-    accuracy = (pred.argmax(1) == y).float().mean()
-    print("Test set classification accuracy: {}".format(accuracy))
-
-def save_model_by_name(model, global_step):
-    save_dir = os.path.join('checkpoints', model.name)
+    #Set paths for checkpoints saving
+    save_dir = os.path.join('checkpoints', model_name)
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
-    file_path = os.path.join(save_dir, 'model-{:05d}.pt'.format(global_step))
-    state = model.state_dict()
-    torch.save(state, file_path)
-    print('Saved to {}'.format(file_path))
+
+    #Create file paths for loss, kl, and rec
+    loss_path = os.path.join(save_dir, 'loss-{:05d}.pt'.format(global_step)+ ".npy")
+    kl_path = os.path.join(save_dir, 'kl-{:05d}.pt'.format(global_step) + ".npy")
+    rec_path = os.path.join(save_dir, 'rec-{:05d}.pt'.format(global_step)+ ".npy")
+
+    #np.save
+    np.save(loss_path, loss_array)
+    np.save(kl_path, kl_array)
+    np.save(rec_path, rec_array)
 
 
 def prepare_writer(model_name, overwrite_existing=False):

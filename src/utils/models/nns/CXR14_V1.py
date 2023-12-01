@@ -18,7 +18,7 @@ class Encoder(torch.nn.Module):
         self.z_dim = z_dim
         self.y_dim = y_dim
         # Load pre-trained VGG16 model
-        vgg16_model = models.vgg16(weights=pretrained)
+        vgg16_model = models.vgg16(weights="IMAGENET1K_V1")
 
         # Use only the features part and remove the classifier
         self.features = vgg16_model.features

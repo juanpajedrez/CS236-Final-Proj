@@ -25,16 +25,27 @@ def train(model, train_loader, device, tqdm, writer,
         model.apply(t.reset_weights)
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
     i = 0
+
+    #Create lists to append the loss, gen/elbo, gen/kl_z, and gen/rec
+    loss_array = []
+    kl_z_array = []
+    rec_array =[]
+
     with tqdm(total=iter_max) as pbar:
         while True:
-            for batch_idx, (xu, yu) in enumerate(train_loader):
+            for batch in train_loader:
                 i += 1 # i is num of gradient steps taken by end of loop iteration
                 optimizer.zero_grad()
-
+                xu, yu = batch
                 if y_status == 'none':
-                    xu = torch.bernoulli(xu.to(device))
-                    yu = yu.to(device).float()
-                    loss, summaries = model.loss(xu)
+                    xu = xu.to(device)
+                    yu = yu.to(device)
+                    loss, kl, rec = model.loss(xu)
+
+                    #Append the loss, kl and rec
+                    loss_array.append(loss)
+                    kl_z_array.append(kl)
+                    rec_array.append(rec)
 
                 loss.backward()
                 optimizer.step()
@@ -45,12 +56,10 @@ def train(model, train_loader, device, tqdm, writer,
                         loss='{:.2e}'.format(loss))
                 pbar.update(1)
 
-                # Log summaries
-                if i % 50 == 0: t.log_summaries(writer, summaries, i)
-
                 # Save model
                 if i % iter_save == 0:
                     t.save_model_by_name(model, i)
+                    t.save_loss_kl_rec_across_training(model.name, loss_array, kl_z_array, rec_array)
 
                 if i == iter_max:
                     return
