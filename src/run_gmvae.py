@@ -33,6 +33,7 @@ if __name__ == "__main__":
 
     # Check if cuda device is in
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = "cpu"
     #train_loader, labeled_subset, _ = t.get_mnist_data(device, use_test_subset=True)
 
     #Create a dataframe compiler
@@ -59,7 +60,7 @@ if __name__ == "__main__":
     #Create datasets and dataloaders, with batch size of 16, and shuffle true, and num workers = 4
     test_dataset = CXReader(data_path=data_path, dataframe=dfs_holder[0], transform=transform, device=device)
     train_dataset = CXReader(data_path=data_path, dataframe=dfs_holder[1], transform=transform, device=device)
-    batch_size = 16
+    batch_size = 8
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=1)
 
     # See the dataloader to see the batches of data
@@ -89,7 +90,7 @@ if __name__ == "__main__":
     parser.add_argument('--z',         type=int, default=20,    help="Number of latent dimensions")
     parser.add_argument('--k',         type=int, default=500,   help="Number mixture components in MoG prior")
     parser.add_argument('--iter_max',  type=int, default=20000, help="Number of training iterations")
-    parser.add_argument('--iter_save', type=int, default=10000, help="Save model every n iterations")
+    parser.add_argument('--iter_save', type=int, default=500, help="Save model every n iterations")
     parser.add_argument('--run',       type=int, default=0,     help="Run ID. In case you want to run replicates")
     parser.add_argument('--train',     type=int, default=1,     help="Flag for training")
     parser.add_argument('--overwrite', type=int, default=1,     help="Flag for overwriting")

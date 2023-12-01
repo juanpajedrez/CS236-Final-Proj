@@ -19,6 +19,20 @@ from utils.models.gmvae import GMVAE
 
 bce = torch.nn.BCEWithLogitsLoss(reduction='none')
 
+def log_bernoulli_with_logits(x, logits):
+    """
+    Computes the log probability of a Bernoulli given its logits
+
+    Args:
+        x: tensor: (batch, dim): Observation
+        logits: tensor: (batch, dim): Bernoulli logits
+
+    Return:
+        log_prob: tensor: (batch,): log probability of each sample
+    """
+    log_prob = -bce(input=logits, target=x).sum(-1)
+    return log_prob
+
 def sample_gaussian(m, v):
     """
     Element-wise application reparameterization trick to sample from Gaussian

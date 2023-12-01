@@ -61,7 +61,8 @@ class GMVAE(nn.Module):
         prior_mean, prior_var = prior
 
         #Obtain the batch and dimension
-        batch, dim = x.shape
+        batch = x.shape[0]
+        dim = x.shape[1]
 
         #First, find the q_phi_enc(z|x) by passing the x observations through the encoder
         q_phi_enc = self.enc(x)
@@ -84,6 +85,9 @@ class GMVAE(nn.Module):
     
         #Seventh determine the rec error with zs and calcualte everything
         p_x_z_decoder = self.dec(zs)
+
+        #Reshape to batch x 3 x 224 x 224 (original image)
+        p_x_z_decoder = p_x_z_decoder.view(p_x_z_decoder.shape[0],3,224,224)
         recs = -1 *t.log_bernoulli_with_logits(x, p_x_z_decoder)
 
         #Eigth, average out all of the metrics across tensors
@@ -121,7 +125,9 @@ class GMVAE(nn.Module):
         prior = t.gaussian_parameters(self.z_pre, dim=1)
         prior_means , prior_vars = prior
 
-        batch, dim = x.shape
+        #Obtain the batch and dimension
+        batch = x.shape[0]
+        dim = x.shape[1]
         multi_weight_x = t.duplicate(x, iw)
 
         #Obtain the q_phi_mean and q_phi_variance with multi weighted samples

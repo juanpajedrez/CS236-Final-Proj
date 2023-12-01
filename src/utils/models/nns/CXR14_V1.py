@@ -77,7 +77,7 @@ class Decoder(nn.Module):
             nn.ELU(),
             nn.Linear(300, 784),
             nn.ELU(),
-            nn.Linear(300, 3 * 224 * 224), 
+            nn.Linear(784, 3 * 224 * 224), 
         )
 
     def forward(self, z, y=None):
