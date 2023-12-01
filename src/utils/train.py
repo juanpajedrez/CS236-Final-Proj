@@ -43,9 +43,9 @@ def train(model, train_loader, device, tqdm, writer,
                     loss, kl, rec = model.loss(xu)
 
                     #Append the loss, kl and rec
-                    loss_array.append(loss)
-                    kl_z_array.append(kl)
-                    rec_array.append(rec)
+                    loss_array.append(loss.item())
+                    kl_z_array.append(kl.item())
+                    rec_array.append(rec.item())
 
                 loss.backward()
                 optimizer.step()
@@ -59,7 +59,7 @@ def train(model, train_loader, device, tqdm, writer,
                 # Save model
                 if i % iter_save == 0:
                     t.save_model_by_name(model, i)
-                    t.save_loss_kl_rec_across_training(model.name, loss_array, kl_z_array, rec_array)
+                    t.save_loss_kl_rec_across_training(model.name, i, loss_array, kl_z_array, rec_array)
 
                 if i == iter_max:
                     return

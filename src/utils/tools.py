@@ -19,6 +19,15 @@ from utils.models.gmvae import GMVAE
 
 bce = torch.nn.BCEWithLogitsLoss(reduction='none')
 
+def save_model_by_name(model, global_step):
+    save_dir = os.path.join('checkpoints', model.name)
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    file_path = os.path.join(save_dir, 'model-{:05d}.pt'.format(global_step))
+    state = model.state_dict()
+    torch.save(state, file_path)
+    print('Saved to {}'.format(file_path))
+
 def log_bernoulli_with_logits(x, logits):
     """
     Computes the log probability of a Bernoulli given its logits
