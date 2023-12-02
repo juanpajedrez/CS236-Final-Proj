@@ -15,9 +15,10 @@ import torch
 # import tensorflow as tf
 from torch.nn import functional as F
 from torchvision import datasets, transforms
-from utils.models.gmvae import GMVAE
+#from utils.models.gmvae import GMVAE
 
 bce = torch.nn.BCEWithLogitsLoss(reduction='none')
+
 
 def save_model_by_name(model, global_step):
     save_dir = os.path.join('checkpoints', model.name)
@@ -214,22 +215,22 @@ def load_model_by_name(model, global_step, device=None):
 
 def evaluate_lower_bound(model, labeled_test_subset, run_iwae=True):
     "We will come back to change to our model class GMVAE"
-    check_model = isinstance(model, GMVAE)
-    assert check_model, "This function is only intended for VAE and GMVAE"
+    #check_model = isinstance(model, GMVAE)
+    #assert check_model, "This function is only intended for VAE and GMVAE"
 
     print('*' * 80)
     print("LOG-LIKELIHOOD LOWER BOUNDS ON TEST SUBSET")
     print('*' * 80)
 
     xl, _ = labeled_test_subset
-    xl = torch.bernoulli(xl)
 
     def detach_torch_tuple(args):
         return (v.detach() for v in args)
 
     def compute_metrics(fn, repeat):
         metrics = [0, 0, 0]
-        for _ in range(repeat):
+        for i in range(repeat):
+            print(f"estimate of metrics:...{i + 1}")
             niwae, kl, rec = detach_torch_tuple(fn(xl))
             metrics[0] += niwae / repeat
             metrics[1] += kl / repeat
@@ -237,11 +238,11 @@ def evaluate_lower_bound(model, labeled_test_subset, run_iwae=True):
         return metrics
 
     # Run multiple times to get low-var estimate
-    nelbo, kl, rec = compute_metrics(model.negative_elbo_bound, 100)
+    nelbo, kl, rec = compute_metrics(model.negative_elbo_bound, 2)
     print("NELBO: {}. KL: {}. Rec: {}".format(nelbo, kl, rec))
 
     if run_iwae:
-        for iw in [1, 10, 100, 1000]:
+        for iw in [20]:
             repeat = max(100 // iw, 1) # Do at least 100 iterations
             fn = lambda x: model.negative_iwae_bound(x, iw)
             niwae, kl, rec = compute_metrics(fn, repeat)

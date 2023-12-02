@@ -140,7 +140,12 @@ class GMVAE(nn.Module):
 
         #Obtain the probabibilites from the decoder feeding the zs
         probs_x_z_decoder = self.dec(multi_zs)
+        probs_x_z_decoder = probs_x_z_decoder.view(probs_x_z_decoder.shape[0],3,224,224)
         recs = t.log_bernoulli_with_logits(multi_weight_x, probs_x_z_decoder)
+
+        #Addittion to match sizes
+        recs = recs.mean(dim=1)
+        recs = recs.mean(dim=1)
         rec = -1.0 * torch.mean(recs)
 
         #Find the log sums now using multi prior_zs means and vars
@@ -191,4 +196,4 @@ class GMVAE(nn.Module):
         return self.sample_x_given(z)
 
     def sample_x_given(self, z):
-        return torch.bernoulli(self.compute_sigmoid_given(z))
+        return self.compute_sigmoid_given(z)

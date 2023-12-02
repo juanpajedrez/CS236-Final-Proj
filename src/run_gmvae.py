@@ -92,8 +92,8 @@ if __name__ == "__main__":
     parser.add_argument('--iter_max',  type=int, default=2000, help="Number of training iterations")
     parser.add_argument('--iter_save', type=int, default=100, help="Save model every n iterations")
     parser.add_argument('--run',       type=int, default=0,     help="Run ID. In case you want to run replicates")
-    parser.add_argument('--train',     type=int, default=1,     help="Flag for training")
-    parser.add_argument('--overwrite', type=int, default=1,     help="Flag for overwriting")
+    parser.add_argument('--train',     type=int, default=0,     help="Flag for training")
+    parser.add_argument('--overwrite', type=int, default=0,     help="Flag for overwriting")
     args = parser.parse_args()
     layout = [
         ('model={:s}',  'gmvae'),
