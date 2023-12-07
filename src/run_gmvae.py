@@ -63,7 +63,6 @@ if __name__ == "__main__":
     batch_size = 8
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=1)
 
-    #aaaaaa
     # See the dataloader to see the batches of data
     #dataiter = iter(train_loader)
     #noisy_img, org_img = dataiter._next_data()
@@ -88,16 +87,17 @@ if __name__ == "__main__":
     print("Getting labeled subset")
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--z',         type=int, default=20,    help="Number of latent dimensions")
-    parser.add_argument('--k',         type=int, default=500,   help="Number mixture components in MoG prior")
+    parser.add_argument('--z',         type=int, default=300,    help="Number of latent dimensions")
+    parser.add_argument('--k',         type=int, default=50,   help="Number mixture components in MoG prior")
     parser.add_argument('--iter_max',  type=int, default=2000, help="Number of training iterations")
     parser.add_argument('--iter_save', type=int, default=100, help="Save model every n iterations")
     parser.add_argument('--run',       type=int, default=0,     help="Run ID. In case you want to run replicates")
-    parser.add_argument('--train',     type=int, default=0,     help="Flag for training")
+    parser.add_argument('--train',     type=int, default=1,     help="Flag for training")
     parser.add_argument('--overwrite', type=int, default=0,     help="Flag for overwriting")
+    parser.add_argument('--loss', type=str, default='bce',  help='Flag for selecting loss')
     args = parser.parse_args()
     layout = [
-        ('model={:s}',  'gmvae'),
+        ('model={:s}',  'gmvaedec3'+args.loss),
         ('z={:02d}',  args.z),
         ('k={:03d}',  args.k),
         ('run={:04d}', args.run)
@@ -106,7 +106,11 @@ if __name__ == "__main__":
     pprint(vars(args))
     print('Model name:', model_name)
 
-    gmvae = GMVAE(z_dim=args.z, k=args.k, name=model_name).to(device)
+    #Define the neural network
+    nn_type = 'CXR14_V3'
+
+    #Assign type of loss
+    gmvae = GMVAE(nn=nn_type, z_dim=args.z, k=args.k, name=model_name, loss_type=args.loss).to(device)
 
     if args.train:
         writer = t.prepare_writer(model_name, overwrite_existing=args.overwrite)

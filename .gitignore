@@ -3,6 +3,7 @@ data
 cs236_project.pdf
 cs236_project.zip
 checkpoints
+vgg16_finetune
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

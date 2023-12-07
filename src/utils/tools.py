@@ -18,6 +18,7 @@ from torchvision import datasets, transforms
 #from utils.models.gmvae import GMVAE
 
 bce = torch.nn.BCEWithLogitsLoss(reduction='none')
+mse = torch.nn.MSELoss(reduction="none")
 
 
 def save_model_by_name(model, global_step):
@@ -28,6 +29,50 @@ def save_model_by_name(model, global_step):
     state = model.state_dict()
     torch.save(state, file_path)
     print('Saved to {}'.format(file_path))
+
+
+def z_score_normalize(tensor, dim=(1, 2)):
+    """
+    Function to z score a tesnor of batch size x dim
+    """
+    mean = tensor.mean(dim=dim, keepdim=True)
+    std = tensor.std(dim=dim, keepdim=True)
+    z_scored = (tensor - mean) / std
+    return z_scored
+
+def scale_to_01(tensor):
+    """
+    Function to scale score a tesnor of batch size x dim
+    """
+    scaled_tensor = (tensor - tensor.min().item()) / (tensor.max().item() - tensor.min().item())
+    return scaled_tensor
+
+def log_pixel_with_logits(x, logits):
+    """
+    Additional function!: Would compute the log
+    probability from pixel values using logits.
+    THIS FUNCTION Uses a specific designed loss
+    """
+    # scale the input betwen 0 to 1
+    x = scale_to_01(x)
+
+    #Obtain the sigmoid of the logits
+    logits = torch.sigmoid(logits)
+
+    # Calculate min and max values for all batches
+    #min_values = x.min().item()
+    #max_values = x.max().item()
+
+    # Calculate scale and shift factors for each batch
+    #scale_factors = (max_values - min_values) / 2.0
+    #shift_factors = (max_values + min_values) / 2.0
+
+    # Apply scaled and shifted tanh function to logits
+    #logits = scale_factors * torch.tanh(logits) + shift_factors
+    
+    #Find the mse of it
+    log_prob = -mse(logits, x).sum(-1)
+    return log_prob
 
 def log_bernoulli_with_logits(x, logits):
     """

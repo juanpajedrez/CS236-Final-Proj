@@ -16,11 +16,20 @@ from torch import nn
 from torch.nn import functional as F
 
 class GMVAE(nn.Module):
-    def __init__(self, nn='CXR14_V1', z_dim=2, k=500, name='gmvae'):
+    def __init__(self, nn='CXR14_V1', z_dim=2, k=500, name='gmvae', loss_type="bce"):
         super().__init__()
         self.name = name
         self.k = k
         self.z_dim = z_dim
+
+        #Check if losses are bce or mse
+        if "bce" <= loss_type <= "mse":
+            print(f"loss used {loss_type}")
+        else:
+            print("Loss should be bce or mse, bce selected as default now")
+            loss_type = "bce"
+
+        self.loss_type = loss_type
         nn = getattr(nns, nn)
         self.enc = nn.Encoder(self.z_dim)
         self.dec = nn.Decoder(self.z_dim)
@@ -88,7 +97,12 @@ class GMVAE(nn.Module):
 
         #Reshape to batch x 3 x 224 x 224 (original image)
         p_x_z_decoder = p_x_z_decoder.view(p_x_z_decoder.shape[0],3,224,224)
-        recs = -1 *t.log_bernoulli_with_logits(x, p_x_z_decoder)
+
+        #If condition for the type of loss
+        if self.loss_type == "bce":
+            recs = -1 *t.log_bernoulli_with_logits(x, p_x_z_decoder)
+        elif self.loss_type == "mse":
+            recs = -1*t.log_pixel_with_logits(x, p_x_z_decoder)
 
         #Eigth, average out all of the metrics across tensors
         rec = torch.mean(recs)
@@ -141,7 +155,12 @@ class GMVAE(nn.Module):
         #Obtain the probabibilites from the decoder feeding the zs
         probs_x_z_decoder = self.dec(multi_zs)
         probs_x_z_decoder = probs_x_z_decoder.view(probs_x_z_decoder.shape[0],3,224,224)
-        recs = t.log_bernoulli_with_logits(multi_weight_x, probs_x_z_decoder)
+    
+        #If condition for the type of loss
+        if self.loss_type == "bce":
+            recs = t.log_bernoulli_with_logits(x, probs_x_z_decoder)
+        elif self.loss_type == "mse":
+            recs = t.log_pixel_with_logits(x, probs_x_z_decoder)
 
         #Addittion to match sizes
         recs = recs.mean(dim=1)
