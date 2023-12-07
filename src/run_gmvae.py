@@ -63,6 +63,7 @@ if __name__ == "__main__":
     batch_size = 8
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=1)
 
+    #aaaaaa
     # See the dataloader to see the batches of data
     #dataiter = iter(train_loader)
     #noisy_img, org_img = dataiter._next_data()
