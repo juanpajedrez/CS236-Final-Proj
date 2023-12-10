@@ -17,9 +17,10 @@ from torch import nn, optim
 from torch.nn import functional as F
 from torchvision.utils import save_image
 
+# *** ADDED CODE: Changed the name of an argument from "y_status" to "fs" (keeping same meaning) ***
 def train(model, train_loader, device, tqdm, writer,
           iter_max=np.inf, iter_save=np.inf,
-          model_name='model', y_status='none', reinitialize=False):
+          model_name='model', fs=False, reinitialize=False):
     # Optimization
     if reinitialize:
         model.apply(t.reset_weights)
@@ -37,10 +38,12 @@ def train(model, train_loader, device, tqdm, writer,
                 i += 1 # i is num of gradient steps taken by end of loop iteration
                 optimizer.zero_grad()
                 xu, yu = batch
-                if y_status == 'none':
-                    xu = xu.to(device)
-                    yu = yu.to(device)
+                xu = xu.to(device)
+                yu = yu.to(device)                
+                if fs is False:
                     loss, kl, rec = model.loss(xu)
+                else:
+                    loss, kl, rec = model.loss(xu, yu)
 
                     #Append the loss, kl and rec
                     loss_array.append(loss.item())
@@ -51,9 +54,9 @@ def train(model, train_loader, device, tqdm, writer,
                 optimizer.step()
 
                 # Feel free to modify the progress bar
-                if y_status == 'none':
-                    pbar.set_postfix(
-                        loss='{:.2e}'.format(loss))
+                # if y_status == 'none':
+                pbar.set_postfix(
+                    loss='{:.2e}'.format(loss))
                 pbar.update(1)
 
                 # Save model

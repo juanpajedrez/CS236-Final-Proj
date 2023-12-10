@@ -89,7 +89,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--z',         type=int, default=300,    help="Number of latent dimensions")
     parser.add_argument('--k',         type=int, default=50,   help="Number mixture components in MoG prior")
-    parser.add_argument('--iter_max',  type=int, default=2000, help="Number of training iterations")
+    parser.add_argument('--iter_max',  type=int, default=200, help="Number of training iterations")
     parser.add_argument('--iter_save', type=int, default=100, help="Save model every n iterations")
     parser.add_argument('--run',       type=int, default=0,     help="Run ID. In case you want to run replicates")
     parser.add_argument('--train',     type=int, default=1,     help="Flag for training")
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     parser.add_argument('--loss', type=str, default='bce',  help='Flag for selecting loss')
     args = parser.parse_args()
     layout = [
-        ('model={:s}',  'gmvaedec3'+args.loss),
+        ('model={:s}',  'gmvaetest'+args.loss),
         ('z={:02d}',  args.z),
         ('k={:03d}',  args.k),
         ('run={:04d}', args.run)
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     print('Model name:', model_name)
 
     #Define the neural network
-    nn_type = 'CXR14_V3'
+    nn_type = 'GMVAE_CXR14_V3'
 
     #Assign type of loss
     gmvae = GMVAE(nn=nn_type, z_dim=args.z, k=args.k, name=model_name, loss_type=args.loss).to(device)
@@ -116,13 +116,14 @@ if __name__ == "__main__":
         writer = t.prepare_writer(model_name, overwrite_existing=args.overwrite)
         train(model=gmvae,
             train_loader=train_loader,
+            fs=False, 
             device=device,
             tqdm=tqdm.tqdm,
             writer=writer,
             iter_max=args.iter_max,
             iter_save=args.iter_save)
-        t.evaluate_lower_bound(gmvae, labeled_subset, run_iwae=args.train == 2)
+        t.evaluate_lower_bound(gmvae, labeled_subset, fs=False, run_iwae=args.train == 2)
 
     else:
         t.load_model_by_name(gmvae, global_step=args.iter_max, device=device)
-        t.evaluate_lower_bound(gmvae, labeled_subset, run_iwae=True)
+        t.evaluate_lower_bound(gmvae, labeled_subset, fs=False, run_iwae=True)
