@@ -71,7 +71,7 @@ def log_pixel_with_logits(x, logits):
     #logits = scale_factors * torch.tanh(logits) + shift_factors
     
     #Find the mse of it
-    log_prob = -mse(logits, x).sum(-1)
+    log_prob = -mse(logits, x)
     return log_prob
 
 def log_bernoulli_with_logits(x, logits):
@@ -85,7 +85,7 @@ def log_bernoulli_with_logits(x, logits):
     Return:
         log_prob: tensor: (batch,): log probability of each sample
     """
-    log_prob = -bce(input=logits, target=x).sum(-1)
+    log_prob = -bce(input=logits, target=x)
     return log_prob
 
 def sample_gaussian(m, v):
@@ -258,7 +258,7 @@ def load_model_by_name(model, global_step, device=None):
     model.load_state_dict(state)
     print("Loaded from {}".format(file_path))
 
-def evaluate_lower_bound(model, labeled_test_subset, run_iwae=True):
+def evaluate_lower_bound(model, labeled_test_subset, fs=False, run_iwae=True):
     "We will come back to change to our model class GMVAE"
     #check_model = isinstance(model, GMVAE)
     #assert check_model, "This function is only intended for VAE and GMVAE"
@@ -267,7 +267,7 @@ def evaluate_lower_bound(model, labeled_test_subset, run_iwae=True):
     print("LOG-LIKELIHOOD LOWER BOUNDS ON TEST SUBSET")
     print('*' * 80)
 
-    xl, _ = labeled_test_subset
+    xl, yl = labeled_test_subset
 
     def detach_torch_tuple(args):
         return (v.detach() for v in args)
@@ -276,7 +276,10 @@ def evaluate_lower_bound(model, labeled_test_subset, run_iwae=True):
         metrics = [0, 0, 0]
         for i in range(repeat):
             print(f"estimate of metrics:...{i + 1}")
-            niwae, kl, rec = detach_torch_tuple(fn(xl))
+            if fs:
+                niwae, kl, rec = detach_torch_tuple(fn(xl, yl))
+            else:
+                niwae, kl, rec = detach_torch_tuple(fn(xl))
             metrics[0] += niwae / repeat
             metrics[1] += kl / repeat
             metrics[2] += rec / repeat

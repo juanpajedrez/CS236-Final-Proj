@@ -16,7 +16,7 @@ from torch import nn
 from torch.nn import functional as F
 
 class GMVAE(nn.Module):
-    def __init__(self, nn='CXR14_V1', z_dim=2, k=500, name='gmvae', loss_type="bce"):
+    def __init__(self, nn='GMVAE_CXR14_V1', z_dim=2, k=500, name='gmvae', loss_type="bce"):
         super().__init__()
         self.name = name
         self.k = k
