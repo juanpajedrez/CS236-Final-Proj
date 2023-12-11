@@ -5,6 +5,8 @@ Date: 2023-11-14
 """
 import os
 import pandas as pd
+import numpy as np
+import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
 from PIL import Image
@@ -17,13 +19,14 @@ class CXReader(Dataset):
     """
 
     def __init__(self, dataframe:pd.DataFrame, data_path: str,
-                transform:transforms.Compose = None):
+                device:str, transform:transforms.Compose = None):
         """
         Parameters:
             dataframe(pd.Dataframe): Contains all of the main information
             of the data in question, ids, labels.
             data_path(str): The string data path to access all
             of the required files.
+            device(str): Device to send data for processing
             transform(transforms.Compose): Any required torch transforms
             necessary to convert the iamges (for VGGnet16 should be 224, 224).
         """
@@ -31,6 +34,7 @@ class CXReader(Dataset):
         self.data_path = data_path 
         self.dataframe = dataframe
         self.transform = transform 
+        self.device = device
 
     def __len__(self):
         """
@@ -52,6 +56,11 @@ class CXReader(Dataset):
         #REMEMBER: Daframe first column are images names
         #and last column is the associated patient id, so drop these.
         label = self.dataframe.iloc[idx, 1:-1].values
+        label = label.astype(np.int16)
+        label = torch.from_numpy(label)
+
+        #Send to device
+        label.to(self.device)
 
         #Create an image path wth the datapath
         img_path = os.path.join(self.data_path, img_name)
@@ -63,6 +72,8 @@ class CXReader(Dataset):
         if self.transform:
             image = self.transform(image)
         
+        #Send to device
+        image.to(self.device)
         return image, label
         
     
