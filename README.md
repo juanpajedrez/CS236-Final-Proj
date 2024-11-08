@@ -1,8 +1,8 @@
 # CS236-Final-Proj
 
 ### Contributors
-Kuniaki Iwanami
-Juan Pablo Triana Martinez
+1.) Kuniaki Iwanami <br>
+2.) Juan Pablo Triana Martinez <br>
 
 ### Project Description
 In the medical field, there has been a growing demand for multi-classification systems capable of predicting medical diagnoses based on doctors' notes or medical images. Ensuring the reliability of these systems has been a priority in recent years, driven by advancements in deep learning and machine learning.
