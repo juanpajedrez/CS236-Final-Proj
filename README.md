@@ -1,7 +1,7 @@
 # Multi-Pathology Chest X-ray Classification and Generation using Gaussian Mixture VAE Model.
 This custom final project is part of the CS236 Graduate Course in Generative AI, Post-Graduate Certificate in AI from Stanford University. 
 
-**-- Prohect Status Completed**
+**-- Project Status Completed**
 *Readme.md update: 2025-08-25*
 
 To run this project on your local machine:
